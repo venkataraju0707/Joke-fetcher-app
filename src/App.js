@@ -3,16 +3,18 @@ import React, { useState } from "react";
 function App() {
   const [joke, setJoke] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // NEW: for test case 3
 
   const fetchJoke = async () => {
     setError("");
     setJoke("");
+    setLoading(true); // disable button
 
     try {
       const res = await fetch("https://official-joke-api.appspot.com/random_joke");
 
       if (!res.ok) {
-        throw new Error("Failed to fetch joke");
+        throw new Error("Failed");
       }
 
       const data = await res.json();
@@ -20,6 +22,8 @@ function App() {
     } catch (err) {
       setError("Could not fetch a joke. Try again.");
     }
+
+    setLoading(false); // enable button again
   };
 
   return (
@@ -28,8 +32,17 @@ function App() {
         <h1 style={styles.title}>Random Joke</h1>
         <p style={styles.subtitle}>Click the button to fetch a fresh one.</p>
 
-        <button style={styles.button} onClick={fetchJoke}>
-          Fetch joke
+        {/* Button disabled when loading */}
+        <button
+          style={{
+            ...styles.button,
+            opacity: loading ? 0.6 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
+          onClick={fetchJoke}
+          disabled={loading}
+        >
+          {loading ? "Loading..." : "Fetch joke"}
         </button>
 
         {joke && <p style={styles.joke}>{joke}</p>}
@@ -78,7 +91,6 @@ const styles = {
     padding: "10px 25px",
     fontSize: "16px",
     borderRadius: "6px",
-    cursor: "pointer",
   },
   error: {
     color: "red",
