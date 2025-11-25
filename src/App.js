@@ -1,25 +1,28 @@
 import React, { useState } from "react";
 
 function App() {
-  const [joke, setJoke] = useState("");
+  const [setup, setSetup] = useState("");
+  const [punchline, setPunchline] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchJoke = async () => {
     setError("");
-    setJoke("");
+    setSetup("");
+    setPunchline("");
+    setHasFetched(true);
     setLoading(true);
 
     try {
       const res = await fetch("https://official-joke-api.appspot.com/random_joke");
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch joke");
-      }
+      if (!res.ok) throw new Error("Failed to fetch");
 
       const data = await res.json();
-      setJoke(data.setup);
-      setTimeout(() => setJoke(data.punchline), 10);  
+
+      setSetup(data.setup);
+      setPunchline(data.punchline);
     } catch (err) {
       setError("Could not fetch a joke. Try again.");
     }
@@ -28,12 +31,11 @@ function App() {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.wrapper}>
       <div style={styles.card}>
         <h1 style={styles.title}>Random Joke</h1>
         <p style={styles.subtitle}>Click the button to fetch a fresh one.</p>
 
-        {/* Main Fetch Button */}
         <button
           style={styles.button}
           onClick={fetchJoke}
@@ -42,16 +44,23 @@ function App() {
           {loading ? "Fetching..." : "Fetch joke"}
         </button>
 
-         {joke && <p style={styles.joke}>{joke}</p>}
+        {/* Joke Display */}
+        {setup && <p style={styles.joke}>{setup}</p>}
+        {punchline && <p style={styles.joke}>{punchline}</p>}
 
+        {/* Error */}
         {error && (
           <>
             <p style={styles.error}>{error}</p>
-
-             <button style={styles.retryButton} onClick={fetchJoke}>
+            <button style={styles.retryButton} onClick={fetchJoke}>
               Try again
             </button>
           </>
+        )}
+
+        {/* Default bottom message */}
+        {!setup && !error && hasFetched === false && (
+          <p style={styles.noJoke}>No joke yet.</p>
         )}
       </div>
     </div>
@@ -59,54 +68,60 @@ function App() {
 }
 
 const styles = {
-  container: {
+  wrapper: {
     minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#f3f3f3",
+    backgroundColor: "#f5f5f5",
   },
   card: {
-    background: "#fff",
+    background: "white",
     padding: "40px",
-    borderRadius: "12px",
-    width: "70%",
-    maxWidth: "600px",
+    width: "500px",
     textAlign: "center",
-    boxShadow: "0px 0px 20px rgba(0,0,0,0.1)",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
   },
   title: {
-    marginBottom: "10px",
+    marginBottom: "8px",
+    fontSize: "24px",
+    fontWeight: "600",
   },
   subtitle: {
-    color: "#666",
+    color: "#555",
     marginBottom: "20px",
   },
   button: {
     background: "#007bff",
-    color: "#fff",
-    border: "none",
-    padding: "10px 25px",
-    fontSize: "16px",
+    color: "white",
+    padding: "10px 24px",
     borderRadius: "6px",
+    border: "none",
     cursor: "pointer",
+    fontSize: "15px",
   },
   retryButton: {
     marginTop: "10px",
     background: "#0066cc",
     color: "white",
     padding: "8px 20px",
-    border: "none",
     borderRadius: "6px",
+    border: "none",
     cursor: "pointer",
   },
-  error: {
-    color: "red",
-    marginTop: "15px",
-  },
   joke: {
-    marginTop: "20px",
-    fontSize: "18px",
+    marginTop: "18px",
+    fontSize: "17px",
+  },
+  error: {
+    marginTop: "16px",
+    color: "red",
+    fontWeight: "500",
+  },
+  noJoke: {
+    marginTop: "18px",
+    color: "#777",
   },
 };
 
