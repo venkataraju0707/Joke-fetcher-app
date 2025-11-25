@@ -3,27 +3,28 @@ import React, { useState } from "react";
 function App() {
   const [joke, setJoke] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // NEW: for test case 3
+  const [loading, setLoading] = useState(false);
 
   const fetchJoke = async () => {
     setError("");
     setJoke("");
-    setLoading(true); // disable button
+    setLoading(true);
 
     try {
       const res = await fetch("https://official-joke-api.appspot.com/random_joke");
 
       if (!res.ok) {
-        throw new Error("Failed");
+        throw new Error("Failed to fetch joke");
       }
 
       const data = await res.json();
-      setJoke(`${data.setup} — ${data.punchline}`);
+      setJoke(data.setup);
+      setTimeout(() => setJoke(data.punchline), 10);  
     } catch (err) {
       setError("Could not fetch a joke. Try again.");
     }
 
-    setLoading(false); // enable button again
+    setLoading(false);
   };
 
   return (
@@ -32,27 +33,24 @@ function App() {
         <h1 style={styles.title}>Random Joke</h1>
         <p style={styles.subtitle}>Click the button to fetch a fresh one.</p>
 
-        {/* Button disabled when loading */}
+        {/* Main Fetch Button */}
         <button
-          style={{
-            ...styles.button,
-            opacity: loading ? 0.6 : 1,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
+          style={styles.button}
           onClick={fetchJoke}
           disabled={loading}
         >
-          {loading ? "Loading..." : "Fetch joke"}
+          {loading ? "Fetching..." : "Fetch joke"}
         </button>
 
-        {joke && <p style={styles.joke}>{joke}</p>}
+         {joke && <p style={styles.joke}>{joke}</p>}
 
         {error && (
           <>
             <p style={styles.error}>{error}</p>
-            <span style={styles.link} onClick={fetchJoke}>
+
+             <button style={styles.retryButton} onClick={fetchJoke}>
               Try again
-            </span>
+            </button>
           </>
         )}
       </div>
@@ -91,17 +89,20 @@ const styles = {
     padding: "10px 25px",
     fontSize: "16px",
     borderRadius: "6px",
+    cursor: "pointer",
+  },
+  retryButton: {
+    marginTop: "10px",
+    background: "#0066cc",
+    color: "white",
+    padding: "8px 20px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
   },
   error: {
     color: "red",
     marginTop: "15px",
-  },
-  link: {
-    marginTop: "10px",
-    color: "#0066cc",
-    display: "inline-block",
-    cursor: "pointer",
-    textDecoration: "underline",
   },
   joke: {
     marginTop: "20px",
