@@ -44,12 +44,10 @@ function App() {
           {loading ? "Fetching..." : "Fetch joke"}
         </button>
 
-        {/* Joke Display */}
-        {setup && <p style={styles.joke}>{setup}</p>}
+         {setup && <p style={styles.joke}>{setup}</p>}
         {punchline && <p style={styles.joke}>{punchline}</p>}
 
-        {/* Error */}
-        {error && (
+         {error && (
           <>
             <p style={styles.error}>{error}</p>
             <button style={styles.retryButton} onClick={fetchJoke}>
@@ -58,8 +56,7 @@ function App() {
           </>
         )}
 
-        {/* Default bottom message */}
-        {!setup && !error && hasFetched === false && (
+         {!setup && !error && hasFetched === false && (
           <p style={styles.noJoke}>No joke yet.</p>
         )}
       </div>
